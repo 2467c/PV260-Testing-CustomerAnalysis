@@ -29,7 +29,15 @@ public class CustomerAnalysisTest {
      */
     @Test
     public void testErrorHandlerInvokedWhenEngineThrows() throws GeneralException {
+ Product product = mock(Product.class);
+	ErrorHandler handler = mock(ErrorHAndler.class);
+	AnalyticalEngine engine = mock(AnalyticalEngine.class);
+	when(engine.interestingCustomers(product)).thenThrow(new CantunderstandException());
+	NewsList newsList = mock(NewsList.class);
 
+	CustomerAnalysis analysis = new CustomerAnalysis(asList(engine),storage,NewsList,handler);
+	catchException(()-> analysis.findInterestingCustomers(product));
+	verify(handler).handle(isA(CantUnderstandExceptio.class));
     }
 
     /**
