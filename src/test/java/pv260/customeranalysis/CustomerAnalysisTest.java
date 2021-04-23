@@ -139,5 +139,32 @@ public class CustomerAnalysisTest {
         assertEquals(result2.get(0), customerList.get(0));
 
     }
+    /**
+      @throws pv260.customeranalysis.exceptions.GeneralException
+     */
+    @Test
+    public void testOfferIsPersistedBefreAddedToNewsList() throws GeneralException {
+        
+        ErrorHandler Handler = mock(ErrorHandler.class);
+        Product Product_1 = mock(Product.class);
+        Customer customer = mock(Customer.class);
+        AnalyticalEngine engine = mock(AnalyticalEngine.class);
+        Storage storage = mock(Storage.class);
+        when(storage.find(Product.class, 0)).thenReturn(Product_1);
+        when(engine.interesetingCustomers(Product_1)).thenReturn(asList(customer));
+        NewsList newsList = mock(NewsList.class);
+        CustomerAnalysis analysis = new CustomerAnalysis(asList(engine),storage, newsList, Handler);
+        analysis.prepareOfferForProduct(0);
+        ArgumentCaptor<Offer> offer_captor1= ArgumentCaptor.forClass(Offer.class);
+        ArgumentCaptor<Offer> offer_captor2= ArgumentCaptor.forClass(Offer.class);
+        InOrder inOrder = inOrder(storage, newsList);
+        inOrder.verify(storage).persist(offer_captor1.capture());
+        inOrder.verify(newsList).sendPeriodically(offer_captor2.capture());
+        Offer offer1 = offer_captor1.getValue();
+        assertEquals(customer, offer1.getCustomer());
+        Offer offer2 = offer_captor2.getValue();
+        assertEquals(customer, offer2.getCustomer());
+        assertEquals(offer1, offer2);
+    }
 
-   
+}
